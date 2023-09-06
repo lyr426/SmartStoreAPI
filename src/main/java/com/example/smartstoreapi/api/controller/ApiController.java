@@ -9,6 +9,8 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -61,7 +63,58 @@ public class ApiController {
 
         System.out.println("productOrderIds = " + productOrderIds);
 
+        getOrderDetails(token, productOrderIds);
+
         return clientId;
+    }
+
+    private void getOrderDetails(String token, String productOrderIds) {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        String apiUrl = "https://api.commerce.naver.com/external/v1/pay-order/seller/product-orders/query";
+
+//        MediaType mediaType = MediaType.parse("application/json");
+//        RequestBody body = RequestBody.create(mediaType, "{\"productOrderIds\":[\"string\"]}");
+//        Request request = new Request.Builder()
+//                .url("https://api.commerce.naver.com/external/v1/pay-order/seller/product-orders/query")
+//                .post(body)
+//                .addHeader("Authorization", "Bearer REPLACE_BEARER_TOKEN")
+//                .addHeader("content-type", "application/json")
+//                .build();
+
+        try {
+            HttpPost httpPost = new HttpPost(apiUrl);
+
+            httpPost.setHeader("Authorization", token);
+            httpPost.setHeader("content-type", "application/json");
+
+
+            JSONObject requestBodyJson = new JSONObject();
+            requestBodyJson.put("productOrderIds", productOrderIds);
+
+            String requestBody = requestBodyJson.toString();
+            System.out.println("requestBody = " + requestBody);
+
+            StringEntity requestEntity = new StringEntity(requestBody, "UTF-8");
+            requestEntity.setContentType("application/json");
+            httpPost.setEntity(requestEntity);
+
+            System.out.println("httpPost = " + httpPost.getEntity().getContent().toString());
+
+            HttpResponse response = httpClient.execute(httpPost);
+            String responseBody = EntityUtils.toString(response.getEntity());
+
+            JSONObject json = new JSONObject(responseBody);
+
+            System.out.println("json = " + json);
+
+
+//            return Arrays.toString(productOrderIds);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+//            return null;
+        }
+
     }
 
     private String getChangedOrders(String token) {
