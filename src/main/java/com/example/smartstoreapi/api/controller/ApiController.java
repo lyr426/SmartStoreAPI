@@ -57,14 +57,14 @@ public class ApiController {
         String token = getToken(clientId, clientSecretSign, String.valueOf(timestamp), "SELF");
         System.out.println("token = " + token);
 
-        String productOrderIds = getChangedOrder(token);
+        String productOrderIds = getChangedOrders(token);
 
         System.out.println("productOrderIds = " + productOrderIds);
 
         return clientId;
     }
 
-    private String getChangedOrder(String token) {
+    private String getChangedOrders(String token) {
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String apiUrl = "https://api.commerce.naver.com/external/v1/pay-order/seller/product-orders/last-changed-statuses";
