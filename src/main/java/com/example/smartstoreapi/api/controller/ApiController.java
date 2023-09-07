@@ -59,7 +59,7 @@ public class ApiController {
         String token = getToken(clientId, clientSecretSign, String.valueOf(timestamp), "SELF");
         System.out.println("token = " + token);
 
-        String productOrderIds = getChangedOrders(token);
+        String[] productOrderIds = getChangedOrders(token);
 
         System.out.println("productOrderIds = " + productOrderIds);
 
@@ -68,7 +68,7 @@ public class ApiController {
         return clientId;
     }
 
-    private void getOrderDetails(String token, String productOrderIds) {
+    private void getOrderDetails(String token, String[] productOrderIds) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String apiUrl = "https://api.commerce.naver.com/external/v1/pay-order/seller/product-orders/query";
 
@@ -92,13 +92,10 @@ public class ApiController {
             requestBodyJson.put("productOrderIds", productOrderIds);
 
             String requestBody = requestBodyJson.toString();
-            System.out.println("requestBody = " + requestBody);
 
             StringEntity requestEntity = new StringEntity(requestBody, "UTF-8");
             requestEntity.setContentType("application/json");
             httpPost.setEntity(requestEntity);
-
-            System.out.println("httpPost = " + httpPost.getEntity().getContent().toString());
 
             HttpResponse response = httpClient.execute(httpPost);
             String responseBody = EntityUtils.toString(response.getEntity());
@@ -117,7 +114,7 @@ public class ApiController {
 
     }
 
-    private String getChangedOrders(String token) {
+    private String[] getChangedOrders(String token) {
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String apiUrl = "https://api.commerce.naver.com/external/v1/pay-order/seller/product-orders/last-changed-statuses";
@@ -154,8 +151,11 @@ public class ApiController {
             for (int i = 0; i < lastChangeStatuses.length(); i++) {
                 productOrderIds[i] = lastChangeStatuses.getJSONObject(i).getString("productOrderId");
             }
+//            for (String productOrderId : productOrderIds) {
+//                System.out.println("productOrderId: " + productOrderId);
+//            }
 
-            return Arrays.toString(productOrderIds); 
+            return productOrderIds;
                     
         } catch (Exception e) {
             e.printStackTrace();
