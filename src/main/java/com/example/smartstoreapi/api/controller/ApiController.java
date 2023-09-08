@@ -1,6 +1,8 @@
 package com.example.smartstoreapi.api.controller;
 
 import com.example.smartstoreapi.api.service.ApiService;
+import com.example.smartstoreapi.common.MailInfo;
+import com.fasterxml.jackson.databind.JsonNode;
 import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -61,25 +63,19 @@ public class ApiController {
 
         String[] productOrderIds = getChangedOrders(token);
 
-        System.out.println("productOrderIds = " + productOrderIds);
-
-        getOrderDetails(token, productOrderIds);
+        List<MailInfo> mailInfos = getOrderDetails(token, productOrderIds);
+        
+        for(MailInfo mailInfo: mailInfos) {
+            System.out.println("itemNo = " + mailInfo.getItemNo());
+            System.out.println("mailInfo = " + mailInfo.getMailAddress());
+        }
 
         return clientId;
     }
 
-    private void getOrderDetails(String token, String[] productOrderIds) {
+    private List<MailInfo> getOrderDetails(String token, String[] productOrderIds) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String apiUrl = "https://api.commerce.naver.com/external/v1/pay-order/seller/product-orders/query";
-
-//        MediaType mediaType = MediaType.parse("application/json");
-//        RequestBody body = RequestBody.create(mediaType, "{\"productOrderIds\":[\"string\"]}");
-//        Request request = new Request.Builder()
-//                .url("https://api.commerce.naver.com/external/v1/pay-order/seller/product-orders/query")
-//                .post(body)
-//                .addHeader("Authorization", "Bearer REPLACE_BEARER_TOKEN")
-//                .addHeader("content-type", "application/json")
-//                .build();
 
         try {
             HttpPost httpPost = new HttpPost(apiUrl);
@@ -102,14 +98,20 @@ public class ApiController {
 
             JSONObject json = new JSONObject(responseBody);
 
-            System.out.println("json = " + json);
+            JSONArray orders =  json.getJSONArray("data");
+            List<MailInfo> mailInfos = new ArrayList<>();
 
+            for(int i=0; i<orders.length(); i++) {
+                String itemNo = orders.getJSONObject(i).getJSONObject("productOrder").get("itemNo").toString();
+                String mailAddress = orders.getJSONObject(i).getJSONObject("productOrder").get("shippingMemo").toString();
+                mailInfos.add(new MailInfo(itemNo, mailAddress));
+            }
 
-//            return Arrays.toString(productOrderIds);
+            return mailInfos;
 
         } catch (Exception e) {
             e.printStackTrace();
-//            return null;
+            return null;
         }
 
     }
@@ -151,9 +153,6 @@ public class ApiController {
             for (int i = 0; i < lastChangeStatuses.length(); i++) {
                 productOrderIds[i] = lastChangeStatuses.getJSONObject(i).getString("productOrderId");
             }
-//            for (String productOrderId : productOrderIds) {
-//                System.out.println("productOrderId: " + productOrderId);
-//            }
 
             return productOrderIds;
                     
