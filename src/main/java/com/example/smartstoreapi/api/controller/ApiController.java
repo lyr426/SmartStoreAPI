@@ -20,7 +20,7 @@ public class ApiController {
     }
 
     @GetMapping("/")
-    public ResponseEntity getApi () throws IOException {
+    public ResponseEntity getOrderInfos () throws IOException {
         List<MailInfo> mailInfos = apiService.getMailInfos();
 
         return ResponseEntity.ok().body(mailInfos);

@@ -52,6 +52,7 @@ public class ApiService {
         for(MailInfo mailInfo: mailInfos) {
             System.out.println("itemNo = " + mailInfo.getItemNo());
             System.out.println("mailInfo = " + extractEmails(mailInfo.getMailAddress()));
+            mailInfo.setMailAddress(extractEmails(mailInfo.getMailAddress()));
         }
 
         return mailInfos;

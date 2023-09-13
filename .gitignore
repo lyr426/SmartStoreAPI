@@ -26,6 +26,8 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 **/application.properties
+jaemijyeoFile/
+
 
 ### NetBeans ###
 /nbproject/private/
