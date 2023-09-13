@@ -23,11 +23,10 @@ class SmartstoreApiApplicationTests {
 
 		//given
 		final ApiService apiService = new ApiService();
-		final ApiController apiController = new ApiController(apiService);
 		final String text = "이메일주소는fmiwenjf@naver.com입니다!!";
 
 		//when
-		final String email = apiController.extractEmails(text);
+		final String email = apiService.extractEmails(text);
 
 		//then
 		assertThat(email).isEqualTo("fmiwenjf@naver.com");
