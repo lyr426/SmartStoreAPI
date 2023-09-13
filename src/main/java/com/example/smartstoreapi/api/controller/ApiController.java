@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 
 @RestController
@@ -67,11 +69,27 @@ public class ApiController {
         
         for(MailInfo mailInfo: mailInfos) {
             System.out.println("itemNo = " + mailInfo.getItemNo());
-            System.out.println("mailInfo = " + mailInfo.getMailAddress());
+            System.out.println("mailInfo = " + extractEmails(mailInfo.getMailAddress()));
         }
 
         return clientId;
     }
+
+    public String extractEmails(String text) {
+
+        // 이메일 주소의 정규표현식 패턴
+        String emailRegex = "[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}";
+
+        Pattern pattern = Pattern.compile(emailRegex);
+        Matcher matcher = pattern.matcher(text);
+
+        if(matcher.find()) {
+            String email = matcher.group();
+            return email;
+        }
+        return "";
+    }
+
 
     private List<MailInfo> getOrderDetails(String token, String[] productOrderIds) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
